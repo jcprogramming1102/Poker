@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>計分器 - 掌控遊戲勝負</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root {
+      font-family: 'Noto Sans TC', system-ui, sans-serif;
+    }
+    body {
+      background: linear-gradient(135deg, #052e1e 0%, #065f46 100%);
+      min-height: 100vh;
+    }
+    .text-shadow {
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+    .card-shadow {
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3), 0 1px 3px rgba(0,0,0,0.2);
+    }
+    .gold-gradient {
+      background: linear-gradient(135deg, #d4af37 0%, #f4d03f 50%, #d4af37 100%);
+    }
+  </style>
+</head>
+<body class="text-white">
+  <div id="app" class="min-h-screen py-8 px-4">
+    <!-- Navigation -->
+    <nav class="max-w-4xl mx-auto mb-8">
+      <div class="flex gap-3 justify-center">
+        <button onclick="showPage('home')" class="nav-btn px-4 py-2 bg-white/10 rounded-xl hover:bg-white/20 transition-colors" data-page="home">首頁</button>
+        <button onclick="showPage('game')" class="nav-btn px-4 py-2 bg-white/10 rounded-xl hover:bg-white/20 transition-colors" data-page="game">遊戲</button>
+        <button onclick="showPage('leaderboard')" class="nav-btn px-4 py-2 bg-white/10 rounded-xl hover:bg-white/20 transition-colors" data-page="leaderboard">排行榜</button>
+        <button onclick="showPage('history')" class="nav-btn px-4 py-2 bg-white/10 rounded-xl hover:bg-white/20 transition-colors" data-page="history">遊戲記錄</button>
+      </div>
+    </nav>
+
+    <!-- Home Page -->
+    <div id="page-home" class="page max-w-4xl mx-auto">
+      <div class="text-center mb-12">
+        <h1 class="text-5xl font-bold text-[#d4af37] mb-4 text-shadow" style="font-family: 'Playfair Display', serif;">
+          掌控遊戲勝負
+        </h1>
+        <p class="text-xl text-white/80">記錄每一刻輝煌</p>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+        <button onclick="showPage('leaderboard')" class="group bg-emerald-900/30 backdrop-blur-sm rounded-2xl p-6 border border-emerald-700/50 hover:bg-emerald-900/40 transition-all duration-300 card-shadow">
+          <div class="text-center">
+            <div class="w-16 h-16 mx-auto mb-3 flex items-center justify-center">
+              <svg class="w-12 h-12 text-[#d4af37] group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path>
+              </svg>
+            </div>
+            <h3 class="text-xl font-semibold">排行榜</h3>
+          </div>
+        </button>
+        
+        <button onclick="showPage('history')" class="group bg-emerald-900/30 backdrop-blur-sm rounded-2xl p-6 border border-emerald-700/50 hover:bg-emerald-900/40 transition-all duration-300 card-shadow">
+          <div class="text-center">
+            <div class="w-16 h-16 mx-auto mb-3 flex items-center justify-center">
+              <svg class="w-12 h-12 text-[#d4af37] group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+            </div>
+            <h3 class="text-xl font-semibold">遊戲記錄</h3>
+          </div>
+        </button>
+      </div>
+
+      <!-- Player Management -->
+      <div class="bg-emerald-900/20 backdrop-blur-sm rounded-3xl p-8 border border-emerald-700/40 card-shadow mb-8">
+        <h2 class="text-3xl font-bold text-[#d4af37] mb-6 flex items-center gap-3" style="font-family: 'Playfair Display', serif;">
+          <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+          </svg>
+          玩家管理
+        </h2>
+
+        <!-- Add Player Form -->
+        <form onsubmit="addPlayer(event)" class="flex gap-3 mb-8">
+          <input type="text" id="player-name-input" placeholder="輸入玩家姓名..." class="flex-1 px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:border-[#d4af37] focus:bg-white/15 transition-all">
+          <button type="submit" class="px-6 py-3 gold-gradient text-emerald-900 font-bold rounded-xl hover:shadow-lg hover:scale-105 transition-all duration-300">
+            加入
+          </button>
+        </form>
+
+        <!-- Player List -->
+        <div id="player-list" class="space-y-3">
+          <p class="text-white/60 text-center py-8">還沒有玩家，快來加入吧！</p>
+        </div>
+      </div>
+
+      <!-- Start Game Button -->
+      <div id="start-game-container" class="text-center hidden">
+        <button onclick="startGame()" class="px-12 py-4 gold-gradient text-emerald-900 text-2xl font-bold rounded-2xl hover:shadow-2xl hover:scale-105 transition-all duration-300 card-shadow">
+          開始遊戲
+        </button>
+      </div>
+    </div>
+
+    <!-- Game Page -->
+    <div id="page-game" class="page max-w-6xl mx-auto hidden">
+      <!-- Game Header -->
+      <div class="flex items-center justify-between mb-8">
+        <button onclick="showPage('home')" class="flex items-center gap-2 px-4 py-2 bg-white/10 rounded-xl text-white hover:bg-white/20 transition-colors">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+          </svg>
+          返回
+        </button>
+        
+        <div class="text-center">
+          <h1 class="text-3xl font-bold text-[#d4af37]" style="font-family: 'Playfair Display', serif;">第 <span id="current-round">1</span> 局</h1>
+        </div>
+
+        <button onclick="endGame()" class="flex items-center gap-2 px-4 py-2 bg-[#d4af37]/20 border border-[#d4af37] rounded-xl text-[#d4af37] hover:bg-[#d4af37]/30 transition-colors">
+          結束遊戲
+        </button>
+      </div>
+
+      <!-- Game Rules -->
+      <div class="bg-emerald-900/20 backdrop-blur-sm rounded-2xl p-6 border border-emerald-700/40 mb-8 card-shadow">
+        <h3 class="text-lg font-semibold text-[#d4af37] mb-3">21點計分規則</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-white/80 text-sm">
+          <div class="flex items-center gap-2">
+            <span class="w-8 h-8 rounded-full bg-green-500/30 text-green-400 flex items-center justify-center font-bold">+2</span>
+            <span>玩家獲得21點</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="w-8 h-8 rounded-full bg-blue-500/30 text-blue-400 flex items-center justify-center font-bold">+1</span>
+            <span>玩家贏過莊家</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="w-8 h-8 rounded-full bg-red-500/30 text-red-400 flex items-center justify-center font-bold">-1</span>
+            <span>玩家輸給莊家</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Players Grid -->
+      <div id="game-players-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+      </div>
+
+      <!-- Dealer Option -->
+      <div class="bg-red-900/20 backdrop-blur-sm rounded-2xl p-6 border border-red-500/30 mb-8 card-shadow">
+        <h3 class="text-lg font-semibold text-red-300 mb-4">莊家21點</h3>
+        <p class="text-white/70 mb-4">如果莊家獲得21點，所有玩家都獲得 -1</p>
+        <button onclick="dealerBlackjack()" class="w-full py-3 bg-red-500/30 border border-red-500 rounded-xl text-red-300 hover:bg-red-500/40 transition-all font-semibold">
+          莊家21點 - 全員 -1
+        </button>
+      </div>
+
+      <!-- Next Round -->
+      <div class="text-center">
+        <button onclick="nextRound()" class="px-8 py-4 gold-gradient text-emerald-900 text-xl font-bold rounded-2xl hover:shadow-2xl hover:scale-105 transition-all duration-300 card-shadow">
+          下一回合
+        </button>
+      </div>
+    </div>
+
+    <!-- Leaderboard Page -->
+    <div id="page-leaderboard" class="page max-w-4xl mx-auto hidden">
+      <div class="text-center mb-12">
+        <h1 class="text-4xl font-bold text-[#d4af37] text-shadow" style="font-family: 'Playfair Display', serif;">排行榜</h1>
+      </div>
+
+      <div id="leaderboard-content">
+        <div class="text-center py-16">
+          <svg class="w-24 h-24 text-[#d4af37]/30 mx-auto mb-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path>
+          </svg>
+          <p class="text-white/60 text-xl">還沒有排行榜數據</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- History Page -->
+    <div id="page-history" class="page max-w-4xl mx-auto hidden">
+      <div class="text-center mb-12">
+        <h1 class="text-4xl font-bold text-[#d4af37] text-shadow" style="font-family: 'Playfair Display', serif;">遊戲記錄</h1>
+      </div>
+
+      <div id="history-content">
+        <div class="text-center py-16">
+          <svg class="w-24 h-24 text-[#d4af37]/30 mx-auto mb-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+          </svg>
+          <p class="text-white/60 text-xl">還沒有遊戲記錄</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let gameState = {
+      players: [],
+      currentRound: 1,
+      gameStarted: false,
+      gameRecords: []
+    };
+
+    function loadState() {
+      const saved = localStorage.getItem('poker-scorer-state');
+      if (saved) {
+        gameState = JSON.parse(saved);
+      }
+      updateUI();
+    }
+
+    function saveState() {
+      localStorage.setItem('poker-scorer-state', JSON.stringify(gameState));
+    }
+
+    function showPage(page) {
+      document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
+      document.getElementById('page-' + page).classList.remove('hidden');
+      
+      if (page === 'leaderboard') updateLeaderboard();
+      if (page === 'history') updateHistory();
+    }
+
+    function addPlayer(e) {
+      e.preventDefault();
+      const input = document.getElementById('player-name-input');
+      const name = input.value.trim();
+      
+      if (name) {
+        gameState.players.push({
+          id: Date.now().toString(),
+          name: name,
+          score: 0
+        });
+        input.value = '';
+        saveState();
+        updateUI();
+      }
+    }
+
+    function removePlayer(id) {
+      gameState.players = gameState.players.filter(p => p.id !== id);
+      saveState();
+      updateUI();
+    }
+
+    function startGame() {
+      if (gameState.players.length > 0) {
+        gameState.gameStarted = true;
+        gameState.currentRound = 1;
+        saveState();
+        showPage('game');
+        updateGameUI();
+      }
+    }
+
+    function updatePlayerScore(playerId, change) {
+      const player = gameState.players.find(p => p.id === playerId);
+      if (player) {
+        player.score += change;
+        saveState();
+        updateGameUI();
+      }
+    }
+
+    function dealerBlackjack() {
+      gameState.players.forEach(p => p.score -= 1);
+      saveState();
+      updateGameUI();
+    }
+
+    function nextRound() {
+      gameState.currentRound++;
+      saveState();
+      updateGameUI();
+    }
+
+    function endGame() {
+      const record = {
+        id: Date.now().toString(),
+        date: new Date(),
+        players: [...gameState.players],
+        rounds: gameState.currentRound
+      };
+      gameState.gameRecords.unshift(record);
+      gameState.gameStarted = false;
+      saveState();
+      showPage('history');
+    }
+
+    function updateUI() {
+      const playerList = document.getElementById('player-list');
+      const startContainer = document.getElementById('start-game-container');
+
+      if (gameState.players.length === 0) {
+        playerList.innerHTML = '<p class="text-white/60 text-center py-8">還沒有玩家，快來加入吧！</p>';
+        startContainer.classList.add('hidden');
+      } else {
+        playerList.innerHTML = gameState.players.map((player, index) => `
+          <div class="flex items-center justify-between bg-white/10 rounded-xl px-4 py-3 border border-white/10">
+            <div class="flex items-center gap-4">
+              <span class="w-8 h-8 rounded-full bg-gradient-to-br from-[#d4af37] to-[#f4d03f] text-emerald-900 font-bold flex items-center justify-center">
+                ${index + 1}
+              </span>
+              <span class="text-white font-medium text-lg">${player.name}</span>
+            </div>
+            <button onclick="removePlayer('${player.id}')" class="p-2 text-white/60 hover:text-red-400 hover:bg-red-500/20 rounded-lg transition-colors">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+              </svg>
+            </button>
+          </div>
+        `).join('');
+        startContainer.classList.remove('hidden');
+      }
+    }
+
+    function updateGameUI() {
+      document.getElementById('current-round').textContent = gameState.currentRound;
+      const grid = document.getElementById('game-players-grid');
+      
+      grid.innerHTML = gameState.players.map((player, index) => `
+        <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20 card-shadow hover:border-[#d4af37]/50 transition-all">
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-3">
+              <span class="w-10 h-10 rounded-full bg-gradient-to-br from-[#d4af37] to-[#f4d03f] text-emerald-900 font-bold flex items-center justify-center text-lg">
+                ${index + 1}
+              </span>
+              <h3 class="text-xl font-semibold text-white">${player.name}</h3>
+            </div>
+          </div>
+          <div class="text-center mb-6">
+            <span class="text-5xl font-bold text-[#d4af37]" style="font-family: 'Playfair Display', serif;">${player.score}</span>
+            <p class="text-white/60 mt-1">當前總分</p>
+          </div>
+          <div class="grid grid-cols-3 gap-3">
+            <button onclick="updatePlayerScore('${player.id}', 2)" class="flex flex-col items-center gap-1 p-3 bg-green-500/20 border border-green-500/30 rounded-xl text-green-400 hover:bg-green-500/30 transition-all hover:scale-105">
+              <span class="font-bold text-xl">+2</span>
+            </button>
+            <button onclick="updatePlayerScore('${player.id}', 1)" class="flex flex-col items-center gap-1 p-3 bg-blue-500/20 border border-blue-500/30 rounded-xl text-blue-400 hover:bg-blue-500/30 transition-all hover:scale-105">
+              <span class="font-bold text-xl">+1</span>
+            </button>
+            <button onclick="updatePlayerScore('${player.id}', -1)" class="flex flex-col items-center gap-1 p-3 bg-red-500/20 border border-red-500/30 rounded-xl text-red-400 hover:bg-red-500/30 transition-all hover:scale-105">
+              <span class="font-bold text-xl">-1</span>
+            </button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function updateLeaderboard() {
+      const content = document.getElementById('leaderboard-content');
+      
+      let allPlayers = new Map();
+      gameState.players.forEach(p => allPlayers.set(p.id, { name: p.name, score: p.score }));
+      gameState.gameRecords.forEach(record => {
+        record.players.forEach(p => {
+          const existing = allPlayers.get(p.id);
+          if (existing) {
+            existing.score = Math.max(existing.score, p.score);
+          } else {
+            allPlayers.set(p.id, { name: p.name, score: p.score });
+          }
+        });
+      });
+      
+      const sortedPlayers = Array.from(allPlayers.values()).sort((a, b) => b.score - a.score);
+      
+      if (sortedPlayers.length === 0) {
+        content.innerHTML = `
+          <div class="text-center py-16">
+            <svg class="w-24 h-24 text-[#d4af37]/30 mx-auto mb-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path>
+            </svg>
+            <p class="text-white/60 text-xl">還沒有排行榜數據</p>
+          </div>
+        `;
+        return;
+      }
+
+      let html = '';
+      
+      if (sortedPlayers.length > 0) {
+        html += '<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">';
+        
+        if (sortedPlayers[1]) {
+          html += `
+            <div class="order-1 md:order-none mt-8 md:mt-12">
+              <div class="bg-gradient-to-br from-gray-400/30 to-gray-500/30 backdrop-blur-sm rounded-2xl p-6 border border-gray-400/40 card-shadow text-center">
+                <div class="text-gray-300 mb-2">亞軍</div>
+                <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-to-br from-gray-300 to-gray-400 flex items-center justify-center">
+                  <span class="text-3xl">🥈</span>
+                </div>
+                <h3 class="text-2xl font-bold text-white mb-2">${sortedPlayers[1].name}</h3>
+                <div class="text-3xl font-bold text-gray-300" style="font-family: 'Playfair Display', serif;">${sortedPlayers[1].score}</div>
+              </div>
+            </div>
+          `;
+        }
+        
+        html += `
+          <div class="order-0 md:order-none">
+            <div class="bg-gradient-to-br from-yellow-400/30 to-[#d4af37]/40 backdrop-blur-sm rounded-2xl p-8 border border-[#d4af37]/50 card-shadow text-center relative">
+              <div class="absolute -top-6 left-1/2 transform -translate-x-1/2">
+                <div class="w-12 h-12 rounded-full gold-gradient flex items-center justify-center shadow-lg text-2xl">🏆</div>
+              </div>
+              <div class="text-[#f4d03f] mb-2 mt-4">冠軍</div>
+              <div class="w-24 h-24 mx-auto mb-4 rounded-full bg-gradient-to-br from-[#d4af37] to-[#f4d03f] flex items-center justify-center text-4xl">⭐</div>
+              <h3 class="text-2xl font-bold text-white mb-2">${sortedPlayers[0].name}</h3>
+              <div class="text-4xl font-bold text-[#d4af37]" style="font-family: 'Playfair Display', serif;">${sortedPlayers[0].score}</div>
+            </div>
+          </div>
+        `;
+        
+        if (sortedPlayers[2]) {
+          html += `
+            <div class="order-2 md:order-none mt-8 md:mt-16">
+              <div class="bg-gradient-to-br from-amber-700/30 to-amber-800/30 backdrop-blur-sm rounded-2xl p-6 border border-amber-600/40 card-shadow text-center">
+                <div class="text-amber-400 mb-2">季軍</div>
+                <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-to-br from-amber-600 to-amber-700 flex items-center justify-center text-3xl">🥉</div>
+                <h3 class="text-2xl font-bold text-white mb-2">${sortedPlayers[2].name}</h3>
+                <div class="text-3xl font-bold text-amber-400" style="font-family: 'Playfair Display', serif;">${sortedPlayers[2].score}</div>
+              </div>
+            </div>
+          `;
+        }
+        
+        html += '</div>';
+      }
+      
+      if (sortedPlayers.length > 3) {
+        html += '<div class="bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 overflow-hidden"><div class="divide-y divide-white/10">';
+        sortedPlayers.slice(3).forEach((player, index) => {
+          html += `
+            <div class="flex items-center justify-between px-6 py-4 hover:bg-white/5 transition-colors">
+              <div class="flex items-center gap-4">
+                <span class="w-10 h-10 rounded-full bg-white/10 text-white/70 flex items-center justify-center font-bold">${index + 4}</span>
+                <span class="text-white font-medium">${player.name}</span>
+              </div>
+              <span class="text-xl font-bold text-[#d4af37]">${player.score}</span>
+            </div>
+          `;
+        });
+        html += '</div></div>';
+      }
+      
+      content.innerHTML = html;
+    }
+
+    function updateHistory() {
+      const content = document.getElementById('history-content');
+      
+      if (gameState.gameRecords.length === 0) {
+        content.innerHTML = `
+          <div class="text-center py-16">
+            <svg class="w-24 h-24 text-[#d4af37]/30 mx-auto mb-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+            </svg>
+            <p class="text-white/60 text-xl">還沒有遊戲記錄</p>
+          </div>
+        `;
+        return;
+      }
+      
+      content.innerHTML = '<div class="space-y-6">' + gameState.gameRecords.map(record => {
+        const date = new Date(record.date);
+        const formattedDate = date.toLocaleDateString('zh-TW', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+        
+        const sortedPlayers = [...record.players].sort((a, b) => b.score - a.score);
+        
+        return `
+          <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20 card-shadow">
+            <div class="flex items-center justify-between mb-4">
+              <div class="flex items-center gap-3">
+                <svg class="w-6 h-6 text-[#d4af37]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                </svg>
+                <span class="text-[#d4af37] font-medium">${formattedDate}</span>
+              </div>
+              <div class="flex items-center gap-2 text-white/60">
+                <span class="text-sm">${record.rounds} 回合</span>
+              </div>
+            </div>
+            <div class="flex items-center gap-2 mb-4">
+              <svg class="w-5 h-5 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+              </svg>
+              <span class="text-white/70 font-medium">${record.players.length} 位玩家</span>
+            </div>
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+              ${sortedPlayers.map((player, index) => `
+                <div class="bg-white/5 rounded-xl p-4 flex items-center justify-between">
+                  <div class="flex items-center gap-3">
+                    <span class="w-8 h-8 rounded-full bg-[#d4af37]/20 text-[#d4af37] flex items-center justify-center font-bold text-sm">${index + 1}</span>
+                    <span class="text-white">${player.name}</span>
+                  </div>
+                  <span class="text-xl font-bold text-[#d4af37]">${player.score}</span>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      }).join('') + '</div>';
+    }
+
+    // Initialize
+    loadState();
+  </script>
+</body>
+</html>
