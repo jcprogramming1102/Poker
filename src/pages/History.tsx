@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Calendar, Users, Clock, Trash2, Crown } from 'lucide-react';
+import { ArrowLeft, Calendar, Users, Trash2, Crown } from 'lucide-react';
 import { useGameStore } from '../store';
 
 const History = () => {
