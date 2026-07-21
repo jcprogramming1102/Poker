@@ -121,7 +121,3 @@ Poker/
 ├── tailwind.config.js
 └── tsconfig.json
 ```
-
-## 授權
-
-MIT
